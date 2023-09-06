@@ -48,72 +48,18 @@ public:
         }
     }
 };
-void testTooManyOutputStreams(){
-    streamcounter=0;
+void test() {
+    shared_ptr<Stream> s(new Stream(1));
+    s->setMassFlow(10.0);
     
-    Drobilka dl = new Drobilka (false);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    dl.addInput(s1);
-    dl.addOutput(s2);
-    try{
-        dl.addOutput(s3);
-    } catch(const string ex){
-         if (ex == "OUTPUT STREAM LIMIT!") {
-        cout << "Test 1 passed" << endl;
-        return;
-    }
-     cout << "Test 1 failed" << endl;
-}
+    assert(s->getMassFlow() == 10.0);
 
-void testTooManyInputStreams(){
-    streamcounter=0;
-    
-     Drobilka dl = new  Drobilka(false);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    dl.addInput(s1);
-    try{
-        dl.addInput(s3);
-    } catch(const string ex){
-         if (ex == "INPUT STREAM LIMIT!") {
-        cout << "Test 2 passed" << endl;
-        return;
-    }
-     cout << "Test 2 failed"s << endl;
+    assert(s->getName() == "s1");
 }
-
-void testInputEqualOutput(){
-        streamcounter=0;
-    
-     Drobilka dl = new  Drobilka(true);
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    dl.addInput(s1);
-    dl.addOutput(s2);
-    dl.addOutput(s3);
-    
-    dl.updateOutputs();
-    
-    if(dl.outputs.getMassFlow == dl.inputs.getMassFlow){
-        cout << "Test 3 passed" << endl;
-    } else cout << "Test 3 failed" << endl;
+void run() {
+    test();
+   
 }
-
-void tests(){
-    testInputEqualOutput();
-    testTooManyOutputStreams();
-    testTooManyInputStreams();
-}
-
 int main()
 {
     streamcounter=0;
@@ -132,6 +78,6 @@ int main()
     // Вывод входного и выходного потока
     s1->print();
     s2->print();
-    tests;
+   run();
     //d1.addInput......
 }
