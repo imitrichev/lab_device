@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <gtest/gtest.h>
 
 int streamcounter = 0;
 
@@ -18,15 +19,17 @@ class Stream
       	Stream(int s) { setName("s" + std::to_string(s)); }
 
       	void setName(std::string s) { name = s; }
-      	void print() { std::cout << "Stream " << getName() << " flow = " << getMassFlow() << std::endl;}
       	void setMassFlow(double m) { mass_flow = m; }
-
-      	std::string getName() { return name; }
-
-      	double getMassFlow() { return mass_flow; }
 
 		void setStreamCameFrom(std::shared_ptr<Device> came_from) { this->came_from = came_from; }
 		void setStreamCameTo(std::shared_ptr<Device> came_to) { this->came_to = came_to; }
+
+      	void print() { std::cout << "Stream " << getName() << " flow = " << getMassFlow() << std::endl;}
+
+      	double getMassFlow() { return mass_flow; }
+
+      	std::string getName() { return name; }
+		
 		std::shared_ptr<Device> getStreamCameFrom() { return came_from; }
 		std::shared_ptr<Device> getStreamCameTo()	{ return came_to; }
 };
@@ -38,7 +41,6 @@ class Device
       	std::vector<std::shared_ptr<Stream> > outputs;
 		std::string name;
     public:
-
 		Device() {};
 		Device(std::string name) { this->name = name; }
 
@@ -63,53 +65,45 @@ class Device
 			std::cout << "\n";
 		}
 
-		virtual void updateOutputs()
-		{
+		std::string getName() { return name; }
 
-		};
+		virtual void updateOutputs() { };
 };
 
-//class Mixer.......
-
-int main()
+TEST(StreamTests, TestStreamSettrGettr)
 {
-    //Mixer d1;
-    
     std::shared_ptr<Stream> s1(new Stream(++streamcounter));
     std::shared_ptr<Stream> s2(new Stream(++streamcounter));
     std::shared_ptr<Stream> s3(new Stream(++streamcounter));
-    std::shared_ptr<Stream> s4(new Stream(++streamcounter));
-    std::shared_ptr<Stream> s5(new Stream(++streamcounter));
 
-    s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-	s3->setMassFlow(7.5);
-	s4->setMassFlow(3.0);
-	s5->setMassFlow(1.3);
-    
 	std::shared_ptr<Device> d1(new Device("First Device"));
 	std::shared_ptr<Device> d2(new Device("Second Device"));
-	std::shared_ptr<Device> d3(new Device("Third Device"));
 
 	d1->addInput(s1);
 	d1->addInput(s2);
 	d1->addOutput(s3);
 
-	d1->printInputs();
-	d1->printOutpus();
-
 	d2->addInput(s3);
-	d2->addOutput(s4);
+	d2->addOutput(s1);
 
-	d2->printInputs();
-	d2->printOutpus();
+	s1->setStreamCameTo(d1);
+	s1->setStreamCameFrom(d2);
+	s2->setStreamCameTo(d1);
 
-	d3->addInput(s1);
-	d3->addOutput(s5);
+	s3->setStreamCameFrom(d1);
+	s3->setStreamCameTo(d2);
 
-	d3->printInputs();
-	d3->printOutpus();
+	ASSERT_EQ(s1->getStreamCameTo(), d1);
+	ASSERT_EQ(s2->getStreamCameTo(), d1);
+	ASSERT_EQ(s3->getStreamCameTo(), d2);
 
+	ASSERT_EQ(s1->getStreamCameFrom(), d2);
+	ASSERT_EQ(s3->getStreamCameFrom(), d1);
+}
 
-    //d1.addInput......
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+
+	return RUN_ALL_TESTS();
 }
