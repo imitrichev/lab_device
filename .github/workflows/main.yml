@@ -11,7 +11,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
+    steps:    
+    - uses: actions/checkout@v3
+    - name: installation
+      run: sudo apt install -y googletest libgtest-dev build-essential gcovr
+    - name: make
+      run: make
+    - name: execute
+      run: ./main
     - name: Calculate Code Coverage
       id: covr
       run: |
@@ -57,11 +64,4 @@ jobs:
         label: Test Coverage
         message: ${{ env.COVERAGE }}
         color: green
-        
-    - uses: actions/checkout@v3
-    - name: installation
-      run: sudo apt install -y googletest libgtest-dev build-essential gcovr
-    - name: make
-      run: make
-    - name: execute
-      run: ./main
+    
