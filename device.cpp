@@ -32,6 +32,18 @@ class Device
 };
 
 //class Mixer.......
+class Drobilka : public Device
+{
+public:
+    Drobilka() {}  // Конструктор
+    void updateOutputs() override {
+        if (inputs.size() == 1 && outputs.size() == 1) {
+            double inputMassFlow = inputs[0]->getMassFlow();
+            double outputMassFlow = inputMassFlow * 3;
+            outputs[0]->setMassFlow(outputMassFlow);
+        }
+    }
+};
 
 int main()
 {
