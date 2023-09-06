@@ -8,41 +8,84 @@ int streamcounter;
 
 class Stream
 {
-    private:
-      double mass_flow;
-      string name;
-    public:
-      Stream(int s){setName("s"+std::to_string(s));}
-      void setName(string s){name=s;}
-      string getName(){return name;}
-      void setMassFlow(double m){mass_flow=m;}
-      double getMassFlow(){return mass_flow;}
-      void print(){cout<<"Stream "<<getName()<<" flow = "<<getMassFlow()<<endl;}
+private:
+  double mass_flow;
+  string name;
+
+public:
+  Stream(int s) { setName("s" + std::to_string(s)); }
+  void setName(string s) { name = s; }
+  string getName() { return name; }
+  void setMassFlow(double m) { mass_flow = m; }
+  double getMassFlow() { return mass_flow; }
+  void print() { cout << "Stream " << getName() << " flow = " << getMassFlow() << endl; }
 };
 
 class Device
 {
-    protected:
-      vector<shared_ptr<Stream>> inputs;
-      vector<shared_ptr<Stream>> outputs;
-    public:
-      void addInput(shared_ptr<Stream> s){inputs.push_back(s);}
-      void addOutput(shared_ptr<Stream> s){outputs.push_back(s);}
-      virtual void updateOutputs() = 0;
+protected:
+  vector<shared_ptr<Stream>> inputs;
+  vector<shared_ptr<Stream>> outputs;
+
+public:
+  void addInput(shared_ptr<Stream> s) { inputs.push_back(s); }
+  void addOutput(shared_ptr<Stream> s) { outputs.push_back(s); }
+  virtual void updateOutputs() = 0;
 };
 
-//class Mixer.......
+class ComplexSeparator : public Device
+{
+private:
+  int _outputs_count = 0;
+
+public:
+  ComplexSeparator(int outputs_count) : Device()
+  {
+    _outputs_count = outputs_count;
+  }
+
+  void addInput(shared_ptr<Stream> s)
+  {
+    if (inputs.size() > 1)
+    {
+      throw "Only one input allowed for ComplexSeparator.";
+    }
+    inputs.push_back(s);
+  }
+
+  void addOutput(shared_ptr<Stream> s)
+  {
+    if (outputs.size() == _outputs_count)
+    {
+      throw "Too many outputs for ComplexSeparator.";
+    }
+    outputs.push_back(s);
+  }
+
+  void updateOutputs() override
+  {
+    if (inputs.empty())
+    {
+      throw "No input provided for ComplexSeparator.";
+    }
+
+    double input_mass_flow = inputs[0]->getMassFlow();
+    double output_mass = input_mass_flow / _outputs_count;
+
+    for (auto &output_stream : outputs)
+    {
+      output_stream->setMassFlow(output_mass);
+    }
+  }
+};
 
 int main()
 {
-    streamcounter=0;
-    //Mixer d1;
-    
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
-    s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-    
-    //d1.addInput......
+  streamcounter = 0;
+
+  shared_ptr<Stream> s1(new Stream(++streamcounter));
+  shared_ptr<Stream> s2(new Stream(++streamcounter));
+  shared_ptr<Stream> s3(new Stream(++streamcounter));
+  s1->setMassFlow(10.0);
+  s2->setMassFlow(5.0);
 }
