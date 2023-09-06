@@ -97,4 +97,11 @@ int main()
   separator.addOutput(s1);
   separator.addOutput(s2);
   separator.addOutput(s3);
+
+  separator.updateOutputs();
+  s2->print();
+  s3->print();
+  s4->print();
+
+  return 0;
 }
