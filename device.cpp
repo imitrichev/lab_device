@@ -54,7 +54,11 @@ int main()
     shared_ptr<Stream> s2(new Stream(++streamcounter));
 
     s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
-    
+    drobilka.addInput(s1);
+    drobilka.addOutput(s2);
+    drobilka.updateOutputs();
+    s1->print();
+    s2->print();
+   
     //d1.addInput......
 }
