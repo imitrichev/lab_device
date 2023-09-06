@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cassert>
+
 
 using namespace std;
 int streamcounter;
@@ -47,14 +49,13 @@ public:
             outputs[0]->setMassFlow(outputMassFlow);
         }
         else {
-            cout<<"invalid streams";
+            throw("invalid streams");
         }
     }
 };
-
-int main()
-{
-    streamcounter=0;
+void test()
+    {
+     streamcounter=0;
     //Mixer d1;
     // Создание экземпляра класса
     Drobilka drobilka;
@@ -67,9 +68,17 @@ int main()
     drobilka.addOutput(s2);
     // Обновление выходного потока
     drobilka.updateOutputs();
+    assert(s1->getMassFlow()==10.0);
+    assert(s2->getMassFlow()==10.0);
     // Вывод входного и выходного потока
     s1->print();
     s2->print();
 
     //d1.addInput......
+        
+    };
+int main()
+{
+    test();
+   
 }
