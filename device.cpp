@@ -39,6 +39,20 @@ class Device
       virtual void updateOutputs() = 0;
 };
 
+class Reactor : Device{
+    Reactor(bool isDoubleReactor) {
+        inputAmount = 1;
+        if (isDoubleReactor) outputAmount = 2;
+        else inputAmount = 1;
+    }
+    void updateOutputs override(){
+    double inputMass = inputs.at(0) -> getMassFlow() 
+        for(int i = 0; i < outputAmount; i++){
+            outputs.at(i) -> setMassFlow(inputMass * 0.83)
+        }
+    }
+}
+
 //class Mixer.......
 
 int main()
