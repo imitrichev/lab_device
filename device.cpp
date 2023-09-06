@@ -49,7 +49,7 @@ int main()
 {
     streamcounter=0;
     //Mixer d1;
-    
+    Drobilka drobilka;
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
