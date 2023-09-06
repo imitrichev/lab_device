@@ -88,15 +88,16 @@ int main()
 
   shared_ptr<Stream> s1(new Stream(++streamcounter));
   s1->setMassFlow(10.0);
+  s1->print();
   separator.addInput(s1);
 
   shared_ptr<Stream> s2(new Stream(++streamcounter));
   shared_ptr<Stream> s3(new Stream(++streamcounter));
   shared_ptr<Stream> s4(new Stream(++streamcounter));
 
-  separator.addOutput(s1);
   separator.addOutput(s2);
   separator.addOutput(s3);
+  separator.addOutput(s4);
 
   separator.updateOutputs();
   s2->print();
