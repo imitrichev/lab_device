@@ -378,5 +378,20 @@ int main()
 //    s3->print();
     tests();
 
+    shared_ptr<Stream> output1(new Stream(++streamcounter));
+    shared_ptr<Stream> output2(new Stream(++streamcounter));
+
+    ComplexColumn column(s1,s2,output1,output2);
+
+    column.addInput(s1);
+    column.addInput(s2);
+    column.addOutput(output1);
+    column.addOutput(output2);
+
+    column.updateOutputs();
+
+    output1->print();
+    output2->print();
+
     return 0;
 }
