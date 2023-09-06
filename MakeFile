@@ -1,4 +1,4 @@
 all:
-	g++ -std=c++20 device.cpp -o program.out
+	g++ -std=c++20 device.cpp -o a.out
 clean:
-	rm program.out
+	rm a.out
