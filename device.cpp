@@ -31,18 +31,52 @@ class Device
       virtual void updateOutputs() = 0;
 };
 
-//class Mixer.......
+class SimpleColumn : public Device
+{
+public:
+    SimpleColumn() {}  // Конструктор
+
+    // Метод для обновления выходных потоков на основе входного потока
+    void updateOutputs() override {
+        if (inputs.size() == 1 && outputs.size() == 2) {
+            // Получаем массовый расход входного потока
+            double inputMassFlow = inputs[0]->getMassFlow();
+
+            // Простой пример: делим входной поток поровну на два выходных потока
+            double outputMassFlow = inputMassFlow / 2.0;
+
+            // Устанавливаем массовый расход для обоих выходных потоков
+            outputs[0]->setMassFlow(outputMassFlow);
+            outputs[1]->setMassFlow(outputMassFlow);
+        }
+    }
+};
+
 
 int main()
 {
-    streamcounter=0;
-    //Mixer d1;
-    
+    streamcounter = 0;
+
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
     s1->setMassFlow(10.0);
     s2->setMassFlow(5.0);
-    
-    //d1.addInput......
+
+    SimpleColumn column;
+
+    // Добавляем потоки в колонну
+    column.addInput(s1);
+    column.addOutput(s2);
+    column.addOutput(s3);
+
+    // Обновляем выходные потоки
+    column.updateOutputs();
+
+    // Выводим информацию о потоках
+    s1->print();
+    s2->print();
+    s3->print();
+
+    return 0;
 }
