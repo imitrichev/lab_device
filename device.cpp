@@ -3,44 +3,50 @@
 #include <vector>
 #include <memory>
 
-using namespace std;
-int streamcounter;
+int streamcounter = 0;
 
 class Stream
 {
     private:
-      double mass_flow;
-      string name;
+    	double mass_flow;
+      	std::string name;
+		std::shared_ptr<Device> came_from;	// Поток вытекает из
+		std::shared_ptr<Device> came_to;	// Поток течёт в 
     public:
-      Stream(int s){setName("s"+std::to_string(s));}
-      void setName(string s){name=s;}
-      string getName(){return name;}
-      void setMassFlow(double m){mass_flow=m;}
-      double getMassFlow(){return mass_flow;}
-      void print(){cout<<"Stream "<<getName()<<" flow = "<<getMassFlow()<<endl;}
+      	Stream(int s) { setName("s" + std::to_string(s)); }
+
+      	void setName(std::string s) { name = s; }
+      	void print() { std::cout << "Stream " << getName() << " flow = " << getMassFlow() << std::endl;}
+      	void setMassFlow(double m) { mass_flow = m; }
+
+      	std::string getName() { return name; }
+
+      	double getMassFlow() { return mass_flow; }
+		
 };
 
 class Device
 {
     protected:
-      vector<shared_ptr<Stream>> inputs;
-      vector<shared_ptr<Stream>> outputs;
+      	std::vector<std::shared_ptr<Stream>> inputs;
+      	std::vector<std::shared_ptr<Stream>> outputs;
     public:
-      void addInput(shared_ptr<Stream> s){inputs.push_back(s);}
-      void addOutput(shared_ptr<Stream> s){outputs.push_back(s);}
-      virtual void updateOutputs() = 0;
+      	void addInput(std::shared_ptr<Stream> s) { inputs.push_back(s); }
+      	void addOutput(std::shared_ptr<Stream> s) { outputs.push_back(s); }
+      	
+		virtual void updateOutputs() = 0;
 };
 
 //class Mixer.......
 
 int main()
 {
-    streamcounter=0;
+	streamcounter=0;
     //Mixer d1;
     
-    shared_ptr<Stream> s1(new Stream(++streamcounter));
-    shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
+    std::shared_ptr<Stream> s1(new Stream(++streamcounter));
+    std::shared_ptr<Stream> s2(new Stream(++streamcounter));
+    std::shared_ptr<Stream> s3(new Stream(++streamcounter));
     s1->setMassFlow(10.0);
     s2->setMassFlow(5.0);
     
