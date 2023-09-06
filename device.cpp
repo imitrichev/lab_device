@@ -25,11 +25,35 @@ class Device
     protected:
       vector<shared_ptr<Stream>> inputs;
       vector<shared_ptr<Stream>> outputs;
+      int inputAmount;
+      int outputAmount;
     public:
-      void addInput(shared_ptr<Stream> s){inputs.push_back(s);}
-      void addOutput(shared_ptr<Stream> s){outputs.push_back(s);}
+      void addInput(shared_ptr<Stream> s){
+          if(inputs.size < inputAmount) inputs.push_back(s);
+          else cout << "INPUT STREAM LIMIT!" << endl;
+      }
+      void addOutput(shared_ptr<Stream> s){
+          if(outputs.size < outputAmount) outputs.push_back(s);
+          else cout << "OUTPUT STREAM LIMIT!" << endl;
+      }
       virtual void updateOutputs() = 0;
 };
+
+class Reactor : Device{
+    Reactor(bool isDoubleReactor) {
+        inputAmount = 1;
+        if (isDoubleReactor) outputAmount = 2;
+        else inputAmount = 1;
+    }
+    void updateOutputs override(){
+    double inputMass = inputs.at(0) -> getMassFlow();
+        for(int i = 0; i < outputAmount; i++){
+            double outputLocal = inputMass * 0.83;
+            outputs.at(i) -> setMassFlow(outputLocal);
+            inputMass -= outputLocal;
+        }
+    }
+}
 
 //class Mixer.......
 
