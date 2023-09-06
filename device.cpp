@@ -83,9 +83,18 @@ int main()
 {
   streamcounter = 0;
 
+  // create new complex separator with 3 output streams
+  ComplexSeparator separator(3);
+
   shared_ptr<Stream> s1(new Stream(++streamcounter));
+  s1->setMassFlow(10.0);
+  separator.addInput(s1);
+
   shared_ptr<Stream> s2(new Stream(++streamcounter));
   shared_ptr<Stream> s3(new Stream(++streamcounter));
-  s1->setMassFlow(10.0);
-  s2->setMassFlow(5.0);
+  shared_ptr<Stream> s4(new Stream(++streamcounter));
+
+  separator.addOutput(s1);
+  separator.addOutput(s2);
+  separator.addOutput(s3);
 }
