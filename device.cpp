@@ -132,6 +132,6 @@ void tests(){
 
 int main()
 {
-    tests;
+    tests();
 }
 
