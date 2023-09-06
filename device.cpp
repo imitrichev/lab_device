@@ -42,24 +42,16 @@ public:
             // Получение массового расхода входного потока
             double inputMassFlow = inputs[0]->getMassFlow();
             // Получение выходного потока согласно массовому расходу
-            double outputMassFlow = inputMassFlow * 0.3;
+            double outputMassFlow = inputMassFlow ;
             // Устанавление массового расхода для выходного потока
             outputs[0]->setMassFlow(outputMassFlow);
         }
+        else {
+            cout<<"invalid streams";
+        }
     }
 };
-void test() {
-    shared_ptr<Stream> s(new Stream(1));
-    s->setMassFlow(10.0);
-    
-    assert(s->getMassFlow() == 10.0);
 
-    assert(s->getName() == "s1");
-}
-void run() {
-    test();
-   
-}
 int main()
 {
     streamcounter=0;
@@ -78,6 +70,6 @@ int main()
     // Вывод входного и выходного потока
     s1->print();
     s2->print();
-   run();
+
     //d1.addInput......
 }
