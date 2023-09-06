@@ -52,7 +52,7 @@ int main()
     Drobilka drobilka;
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
-    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
     s1->setMassFlow(10.0);
     s2->setMassFlow(5.0);
     
