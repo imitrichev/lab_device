@@ -52,7 +52,6 @@ public:
     }
 };
 
-
 int main()
 {
     streamcounter = 0;
