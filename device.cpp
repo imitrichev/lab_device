@@ -49,7 +49,7 @@ class Device
 		{
 			std::cout << "Inputs for " << name << "\n";
 			for (auto input : inputs)
-				input.get()->print();
+				input->print();
 			
 			std::cout << "\n";
 		}
@@ -58,7 +58,7 @@ class Device
 		{
 			std::cout << "Outputs for " << name << "\n";
 			for (auto output : outputs)
-				output.get()->print();
+				output->print();
 
 			std::cout << "\n";
 		}
@@ -109,6 +109,7 @@ int main()
 
 	d3->printInputs();
 	d3->printOutpus();
+
 
     //d1.addInput......
 }
