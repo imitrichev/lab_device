@@ -137,6 +137,18 @@ class Mixer: public Device
       }
 };
 
+class ComplexColumn : public Device
+{
+public:
+    ComplexColumn(shared_ptr<Stream> input1, shared_ptr<Stream> input2, shared_ptr<Stream> output1, shared_ptr<Stream> output2)
+    {
+        addInput(input1);
+        addInput(input2);
+        addOutput(output1);
+        addOutput(output2);
+    }
+};
+
 void shouldSetOutputsCorrectlyWithOneOutput() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
