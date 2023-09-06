@@ -56,7 +56,7 @@ class Device
 			std::cout << "\n";
 		}
 
-		void printOutpus()
+		void printOutputs()
 		{
 			std::cout << "Outputs for " << name << "\n";
 			for (auto output : outputs)
