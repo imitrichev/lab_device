@@ -19,3 +19,5 @@ jobs:
       run: make
     - name: execute
       run: ./main
+    - name: Code Coverage Report Action
+      uses: insightsengineering/coverage-action@v2.2.
