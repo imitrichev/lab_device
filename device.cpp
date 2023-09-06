@@ -8,7 +8,7 @@ int streamcounter = 0;
 class Stream
 {
     private:
-    	double mass_flow;
+    	double mass_flow = 0;
       	std::string name;
 		std::shared_ptr<Device> came_from;	// Поток вытекает из
 		std::shared_ptr<Device> came_to;	// Поток течёт в 
@@ -22,7 +22,11 @@ class Stream
       	std::string getName() { return name; }
 
       	double getMassFlow() { return mass_flow; }
-		
+
+		void setStreamCameFrom(std::shared_ptr<Device> came_from) { this->came_from = came_from; }
+		void setStreamCameTo(std::shared_ptr<Device> came_to) { this->came_to = came_to; }
+		std::shared_ptr<Device> getStreamCameFrom() { return came_from; }
+		std::shared_ptr<Device> getStreamCameTo()	{ return came_to; }
 };
 
 class Device
