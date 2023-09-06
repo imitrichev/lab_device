@@ -46,9 +46,11 @@ class Reactor : Device{
         else inputAmount = 1;
     }
     void updateOutputs override(){
-    double inputMass = inputs.at(0) -> getMassFlow() 
+    double inputMass = inputs.at(0) -> getMassFlow();
         for(int i = 0; i < outputAmount; i++){
-            outputs.at(i) -> setMassFlow(inputMass * 0.83)
+            double outputLocal = inputMass * 0.83;
+            outputs.at(i) -> setMassFlow(outputLocal);
+            inputMass -= outputLocal;
         }
     }
 }
