@@ -71,11 +71,11 @@ public:
 class Device
 {
 protected:
-    vector<shared_ptr<Stream>> inputs;  ///< Input streams connected to the device.
-    vector<shared_ptr<Stream>> outputs; ///< Output streams produced by the device.
     int inputAmount;
     int outputAmount;
 public:
+    vector<shared_ptr<Stream>> inputs;  ///< Input streams connected to the device.
+    vector<shared_ptr<Stream>> outputs; ///< Output streams produced by the device.
     /**
      * @brief Add an input stream to the device.
      * @param s A shared pointer to the input stream.
@@ -265,7 +265,7 @@ void testTooManyInputStreams(){
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
     s1->setMassFlow(10.0);
-    s2->setMassFlow(5.0);
+    s3->setMassFlow(5.0);
     dl.addInput(s1);
     try{
         dl.addInput(s3);
@@ -295,7 +295,7 @@ void testInputEqualOutput(){
     
     dl.updateOutputs();
     
-    if(dl.outputs.at(0).getMassFlow + dl.outputs.at(1).getMassFlow == dl.inputs.at(0).getMassFlow)
+    if(dl.outputs.at(0)->getMassFlow() + dl.outputs.at(1)->getMassFlow() == dl.inputs.at(0)->getMassFlow())
         cout << "Test 3 passed" << endl;
     else
         cout << "Test 3 failed" << endl;
