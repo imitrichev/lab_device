@@ -9,6 +9,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <gtest/gtest.h>
 
 using namespace std;
 
@@ -73,16 +74,22 @@ class Device
 protected:
     int inputAmount;
     int outputAmount;
+    bool isCalculated;
 public:
     vector<shared_ptr<Stream>> inputs;  ///< Input streams connected to the device.
     vector<shared_ptr<Stream>> outputs; ///< Output streams produced by the device.
+
+    Device(){
+        isCalculated = false;
+    }
+
     /**
      * @brief Add an input stream to the device.
      * @param s A shared pointer to the input stream.
      */
     void addInput(shared_ptr<Stream> s){
       if(inputs.size() < inputAmount) inputs.push_back(s);
-      else throw"INPUT STREAM LIMIT!";
+      else throw "INPUT STREAM LIMIT!";
     }
     /**
      * @brief Add an output stream to the device.
@@ -97,6 +104,10 @@ public:
      * @brief Update the output streams of the device (to be implemented by derived classes).
      */
     virtual void updateOutputs() = 0;
+
+    bool isDeviceCalculated(){
+        return isCalculated;
+    }
 };
 
 class Mixer: public Device
@@ -104,46 +115,51 @@ class Mixer: public Device
     private:
       int _inputs_count = 0;
     public:
-      Mixer(int inputs_count): Device() {
-        _inputs_count = inputs_count;
-      }
+        Mixer(int inputs_count): Device() {
+            _inputs_count = inputs_count;
+        }
 
-      void addInput(shared_ptr<Stream> s) {
+        void addInput(shared_ptr<Stream> s) {
         if (inputs.size() == _inputs_count) {
           throw "Too much inputs"s;
         }
         inputs.push_back(s);
-      }
+        }
 
-      void addOutput(shared_ptr<Stream> s) {
+        void addOutput(shared_ptr<Stream> s) {
         if (outputs.size() == MIXER_OUTPUTS) {
           throw "Too much outputs"s;
         }
         outputs.push_back(s);
-      }
-
-      void updateOutputs() override {
-        double sum_mass_flow = 0;
-        for (const auto& input_stream : inputs) {
-          sum_mass_flow += input_stream -> getMassFlow();
         }
 
-        if (outputs.empty()) {
-          throw "Should set outputs before update"s;
-        }
+        void updateOutputs() override {
+            if (isCalculated)
+                throw std::runtime_error("Device is already calculated");
 
-        double output_mass = sum_mass_flow / outputs.size(); // divide 0
+            double sum_mass_flow = 0;
+            for (const auto& input_stream : inputs) {
+                sum_mass_flow += input_stream -> getMassFlow();
+            }
 
-        for (auto& output_stream : outputs) {
-          output_stream -> setMassFlow(output_mass);
+            if (outputs.empty()) {
+                throw "Should set outputs before update"s;
+            }
+
+            double output_mass = sum_mass_flow / outputs.size(); // divide 0
+
+            for (auto& output_stream : outputs) {
+                output_stream -> setMassFlow(output_mass);
+            }
+
+            isCalculated = true;
         }
-      }
 };
 
 void shouldSetOutputsCorrectlyWithOneOutput() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
-    
+
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
@@ -166,7 +182,7 @@ void shouldSetOutputsCorrectlyWithOneOutput() {
 void shouldCorrectOutputs() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
-    
+
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
@@ -194,7 +210,7 @@ void shouldCorrectOutputs() {
 void shouldCorrectInputs() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
-    
+
     shared_ptr<Stream> s1(new Stream(++streamcounter));
     shared_ptr<Stream> s2(new Stream(++streamcounter));
     shared_ptr<Stream> s3(new Stream(++streamcounter));
@@ -224,15 +240,22 @@ public:
     Reactor(bool isDoubleReactor) {
         inputAmount = 1;
         if (isDoubleReactor) outputAmount = 2;
-        else inputAmount = 1;
+        else outputAmount = 1;
+
+        cout << this->inputAmount << " " << this->outputAmount << endl;
     }
-    
+
     void updateOutputs() override{
-        double inputMass = inputs.at(0) -> getMassFlow();
-            for(int i = 0; i < outputAmount; i++){
+        if (isCalculated)
+            throw std::runtime_error("Device is already calculated");
+
+        double inputMass = inputs.at(0)->getMassFlow();
+        for(int i = 0; i < outputs.size(); i++){
             double outputLocal = inputMass * (1/outputAmount);
             outputs.at(i) -> setMassFlow(outputLocal);
         }
+
+        isCalculated = true;
     }
 };
 
@@ -283,7 +306,7 @@ void testTooManyInputStreams(){
 }
 
 void testInputEqualOutput(){
-        streamcounter=0;
+    streamcounter=0;
     
     Reactor dl = new Reactor(true);
     
@@ -314,11 +337,121 @@ void tests(){
     shouldCorrectInputs();
 }
 
+TEST(DeviceTests, TooMuchOutputStreamsException){
+    // Arrange
+    streamcounter=0;
+
+    Reactor dl = new Reactor(false);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    // Act
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(5.0);
+    dl.addInput(s1);
+    dl.addOutput(s2);
+
+    // Assert
+    try{
+        dl.addOutput(s3);
+    } catch(const string ex){
+        EXPECT_EQ(ex ,std::string("OUTPUT STREAM LIMIT!"));
+    } catch (...) {
+        FAIL();
+    }
+
+}
+
+TEST(DeviceTests, TooMuchInputStreamsException){
+    // Arrange
+    streamcounter=0;
+
+    Reactor dl = new Reactor(false);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    // Act
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(15.0);
+    dl.addInput(s1);
+
+    // Assert
+    try {
+        dl.addInput(s2);
+    } catch (...) {
+        SUCCEED();
+    }
+
+}
+
+TEST(DeviceTests, SetMassFlow){
+    // Arrange
+    streamcounter=0;
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    // Act
+    s1->setMassFlow(15.0);
+    s2->setMassFlow(5.0);
+    s3->setMassFlow(10.0);
+
+
+    // Assert
+    ASSERT_TRUE(s2->getMassFlow() == 5.0 &&
+        s3->getMassFlow() == 10.0 &&
+        s1->getMassFlow() == 15.0);
+}
+
+TEST(DeviceTests, SetNameOfStream){
+    // Arrange
+    shared_ptr<Stream> s1(new Stream(1));
+
+    // Act
+    s1->setName("New name");
+    string result = s1->getName();
+
+    // Assert
+    EXPECT_EQ(result, "New name");
+}
+
+TEST(DeviceTests, DeviceIsCalculated){
+    // Arrange
+    streamcounter=0;
+
+    Reactor dl = new Reactor(false);
+
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+
+    // Act
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(15.0);
+    dl.addInput(s1);
+    dl.addOutput(s2);
+    dl.updateOutputs();
+    // Assert
+    try {
+        dl.updateOutputs();
+        FAIL() << "Expected std::runtime_error";
+    } catch (std::runtime_error const & err) {
+        EXPECT_EQ(err.what(), std::string("Device is already calculated"));
+    } catch (...) {
+        FAIL() << "Expected std::runtime_error";
+    }
+    cout << dl.isDeviceCalculated() << endl;
+}
+
 /**
  * @brief The entry point of the program.
  * @return 0 on successful execution.
  */
-int main()
+int main(int argc, char **argv)
 {
     streamcounter = 0;
 
@@ -344,7 +477,9 @@ int main()
 //    s1->print();
 //    s2->print();
 //    s3->print();
-    tests();
+//    tests();
 
-    return 0;
+    ::testing::InitGoogleTest(&argc, argv);
+
+    return RUN_ALL_TESTS();
 }
