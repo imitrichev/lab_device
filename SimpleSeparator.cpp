@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cassert>
 
 using namespace std;
 int streamcounter;
@@ -58,6 +59,57 @@ class SimpleSeparator : public Device {
         }
 };
 
+// Тестовая функция для класса Stream
+void testStream() {
+    shared_ptr<Stream> s(new Stream(streamcounter));
+    s->setName("s0");
+    assert(s->getName() == "s0"); // проверка установки имени потока
+    s->setMassFlow(20.0);
+    assert(s->getMassFlow() == 20.0); // проверка установки и извлечения массы потока
+}
+
+// Тестовая функция для класса SimpleSeparator
+void testSimpleSeparator() {
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    s1->setMassFlow(10.0);
+
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    SimpleSeparator separator(0.5);
+    assert(separator.getSplittingRatio() == 0.5); // проверка установки и извлечения коэффициента разделения
+
+    separator.addInput(s1);
+    separator.addOutput(s2);
+    separator.addOutput(s3);
+
+    separator.updateOutputs();
+
+    assert(s2->getMassFlow() == 5.0); // проверка корректного обновления выходных потоков
+    assert(s3->getMassFlow() == 5.0);
+}
+
+// Тестовая функция для класса Device (на примере класса SimpleSeparator)
+void testDevice() {
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    s1->setMassFlow(20.0);
+
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    shared_ptr<Stream> s3(new Stream(++streamcounter));
+
+    SimpleSeparator separator(0.4);
+
+    separator.addInput(s1);
+    separator.addOutput(s2);
+    separator.addOutput(s3);
+
+    separator.updateOutputs();
+
+    assert(s2->getMassFlow() == 8.0); // проверка корректного обновления выходных потоков
+    assert(s3->getMassFlow() == 12.0);
+}
+
+
 int main() {
     streamcounter = 0;
 
@@ -77,6 +129,13 @@ int main() {
     s1->print();
     s2->print();
     s3->print();
+
+    // Прогон тестовых функций
+    testStream();
+    testSimpleSeparator();
+    testDevice();
+
+    cout << "All tests passed successfully!" << endl;
 
     return 0;
 }
