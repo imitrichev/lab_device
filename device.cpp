@@ -137,6 +137,41 @@ class Mixer: public Device
       }
 };
 
+class ComplexColumn : public Device
+{
+public:
+    ComplexColumn(shared_ptr<Stream> input1, shared_ptr<Stream> input2, shared_ptr<Stream> output1, shared_ptr<Stream> output2)
+    {
+        addInput(input1);
+        addInput(input2);
+        addOutput(output1);
+        addOutput(output2);
+    }
+    virtual void updateOutputs() override
+    {
+        if (inputs.size() < 2)
+        {
+          cout << "Not enough input streams." << endl;
+          return;
+        }
+
+        double input1MassFlow = inputs[0]->getMassFlow();
+        double input2MassFlow = inputs[1]->getMassFlow();
+
+        if (input1MassFlow <= 0.0 || input2MassFlow <= 0.0)
+        {
+          cout << "Input streams have invalid data." << endl;
+          return;
+        }
+
+        double result1 = 0.7 * (input1MassFlow + input2MassFlow);
+        double result2 = 0.3 * (input1MassFlow + input2MassFlow);
+
+        outputs[0]->setMassFlow(result1);
+        outputs[1]->setMassFlow(result2);
+    }
+};
+
 void shouldSetOutputsCorrectlyWithOneOutput() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
@@ -342,6 +377,21 @@ int main()
 //    s2->print();
 //    s3->print();
     tests();
+
+    shared_ptr<Stream> output1(new Stream(++streamcounter));
+    shared_ptr<Stream> output2(new Stream(++streamcounter));
+
+    ComplexColumn column(s1,s2,output1,output2);
+
+    column.addInput(s1);
+    column.addInput(s2);
+    column.addOutput(output1);
+    column.addOutput(output2);
+
+    column.updateOutputs();
+
+    output1->print();
+    output2->print();
 
     return 0;
 }
