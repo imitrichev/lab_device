@@ -40,7 +40,6 @@ class SimpleColumn : public Device
 {
 public:
     SimpleColumn() {}
-
     void updateOutputs() override {
         if (inputs.size() == 1 && outputs.size() == 2) {
             double inputMassFlow = inputs[0]->getMassFlow();
@@ -150,7 +149,7 @@ void testSimpleColumnInvalidOutputSize() {
     shared_ptr<Stream> s3(new Stream(3));
 
     s1->setMassFlow(10.0);
-
+    
     SimpleColumn column;
     column.addInput(s1);
     column.addOutput(s2);
