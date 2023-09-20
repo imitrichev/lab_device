@@ -137,6 +137,41 @@ class Mixer: public Device
       }
 };
 
+class ComplexColumn : public Device
+{
+public:
+    ComplexColumn(shared_ptr<Stream> input1, shared_ptr<Stream> input2, shared_ptr<Stream> output1, shared_ptr<Stream> output2)
+    {
+        addInput(input1);
+        addInput(input2);
+        addOutput(output1);
+        addOutput(output2);
+    }
+    virtual void updateOutputs() override
+    {
+        if (inputs.size() < 2)
+        {
+          cout << "Not enough input streams." << endl;
+          return;
+        }
+
+        double input1MassFlow = inputs[0]->getMassFlow();
+        double input2MassFlow = inputs[1]->getMassFlow();
+
+        if (input1MassFlow <= 0.0 || input2MassFlow <= 0.0)
+        {
+          cout << "Input streams have invalid data." << endl;
+          return;
+        }
+
+        double result1 = 0.7 * (input1MassFlow + input2MassFlow);
+        double result2 = 0.3 * (input1MassFlow + input2MassFlow);
+
+        outputs[0]->setMassFlow(result1);
+        outputs[1]->setMassFlow(result2);
+    }
+};
+
 void shouldSetOutputsCorrectlyWithOneOutput() {
     streamcounter=0;
     Mixer d1 = Mixer(2);
@@ -311,6 +346,74 @@ void tests(){
     shouldCorrectInputs();
 }
 
+void runTests()
+{
+    streamcounter = 0;
+
+    // Тест 1: Валидные входные данные
+    shared_ptr<Stream> s1(new Stream(++streamcounter));
+    shared_ptr<Stream> s2(new Stream(++streamcounter));
+    s1->setMassFlow(10.0);
+    s2->setMassFlow(5.0);
+
+    shared_ptr<Stream> output1(new Stream(++streamcounter));
+    shared_ptr<Stream> output2(new Stream(++streamcounter));
+
+    ComplexColumn column1(s1, s2, output1, output2);
+    column1.updateOutputs();
+
+    cout << "Test 1:" << endl;
+    output1->print();
+    output2->print();
+
+    // Тест 2: Нет входных данных
+    shared_ptr<Stream> emptyInput1(new Stream(++streamcounter));
+    shared_ptr<Stream> emptyInput2(new Stream(++streamcounter));
+
+    shared_ptr<Stream> output3(new Stream(++streamcounter));
+    shared_ptr<Stream> output4(new Stream(++streamcounter));
+
+    ComplexColumn column2(emptyInput1, emptyInput2, output3, output4);
+    column2.updateOutputs();
+
+    cout << "Test 2:" << endl;
+    output3->print();
+    output4->print();
+
+    // Тест 3: Отрицательный массовый расход во входных данных
+    shared_ptr<Stream> negativeInput1(new Stream(++streamcounter));
+    shared_ptr<Stream> negativeInput2(new Stream(++streamcounter));
+    negativeInput1->setMassFlow(-10.0);
+    negativeInput2->setMassFlow(5.0);
+
+    shared_ptr<Stream> output5(new Stream(++streamcounter));
+    shared_ptr<Stream> output6(new Stream(++streamcounter));
+
+    ComplexColumn column3(negativeInput1, negativeInput2, output5, output6);
+    column3.updateOutputs();
+
+    cout << "Test 3:" << endl;
+    output5->print();
+    output6->print();
+
+    // Тест 4: Входные потоки с нулевыми массовыми расходами
+    shared_ptr<Stream> zeroInput1(new Stream(++streamcounter));
+    shared_ptr<Stream> zeroInput2(new Stream(++streamcounter));
+    zeroInput1->setMassFlow(0.0);
+    zeroInput2->setMassFlow(0.0);
+
+    shared_ptr<Stream> output7(new Stream(++streamcounter));
+    shared_ptr<Stream> output8(new Stream(++streamcounter));
+
+    ComplexColumn column4(zeroInput1, zeroInput2, output7, output8);
+    column4.updateOutputs();
+
+    cout << "Test 4:" << endl;
+    output7->print();
+    output8->print();
+}
+
+
 /**
  * @brief The entry point of the program.
  * @return 0 on successful execution.
@@ -342,6 +445,8 @@ int main()
 //    s2->print();
 //    s3->print();
     tests();
+
+    runTests();
 
     return 0;
 }
