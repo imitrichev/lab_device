@@ -1,2 +1,1 @@
-# lab_device
-Laboratory task for Github Actions/testing
+Написание работы простого сепаратора на C++, а так же написание ручных тестов для программы
